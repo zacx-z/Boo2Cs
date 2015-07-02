@@ -7,7 +7,7 @@ function main
 	by
 		P [convert_variable_declaration] [convert_function_declaration] [c_local_variable_definition] [convert_generic]
 		[convert_for_in] [convert_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
-		[convert_while] [c_generic_type_declaration]
+		[convert_while] [c_generic_type_declaration] [convert_callable]
 		[convert_default_function_declaration] % comment this to forbidden
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent]
 end function
@@ -81,6 +81,13 @@ rule convert_while
 		'( _ [expression] ')
 	by
 		while '( E')
+end rule
+
+rule convert_callable
+	replace [callable_declaration]
+		M [opt modifier] 'callable N [id] G [opt generic_type] '( P [variable_declaration,] ') as T [type]
+	by
+		M 'delegate T N G '( P ')
 end rule
 
 rule convert_single_name

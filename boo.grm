@@ -79,7 +79,7 @@ define class_member_function_definition
 end define
 
 define callable_declaration
-    'callable [id] [opt generic_type] '( [variable_declaration,] ') [function_type]
+    [opt modifier] 'callable [id] [opt generic_type] '( [variable_declaration,] ') [function_type]
 end define
 
 define attribute_stmt_newline
@@ -182,7 +182,7 @@ define variable_declaration
 end define
 
 define function_type
-    as [id]
+    as [type]
 end define
 
 define modifier

@@ -1,3 +1,6 @@
+keys
+	delegate
+end keys
 
 redefine import_stmt_newline
 		...
@@ -42,6 +45,11 @@ end redefine
 redefine generic_type_declaration
 		...
 	|	'< [id] '> [opt where_clause]
+end redefine
+
+redefine callable_declaration
+		...
+	|	[opt modifier] 'delegate [type] [id] [opt generic_type] '( [variable_declaration,] ')
 end redefine
 
 define where_clause
