@@ -1,12 +1,12 @@
 
 redefine import_stmt_newline
 		...
-    |	'using [id] [opt ';] [repeat endofline]
+    |	'using [id_with_dots] [opt ';] [repeat endofline]
 end redefine
 
 redefine variable_declaration
 		...
-	|	[id] [id]
+	|	[type] [id]
 end redefine
 
 redefine local_variable_definition
@@ -29,12 +29,26 @@ redefine elif_header
 	|	'else 'if [expression]
 end redefine
 
+redefine if_body
+		...
+	|	[single_stmt] ';
+end redefine
+
 redefine generic_type
 		...
 	|	'< [id] '>
 end redefine
 
+redefine generic_type_declaration
+		...
+	|	'< [id] '> [opt where_clause]
+end redefine
+
+define where_clause
+	'where [id] ': [type_base]
+end define
+
 redefine indent
 		...
-	|	'{ [IN] [repeat endofline]
+	|	'{ [opt comment] [IN] [repeat endofline]
 end redefine

@@ -19,7 +19,7 @@ keys
     elif      global    or        of
     'assert    else      if        pass      yield 
     break     except    'import    'print 
-    class     exec      in        raise 
+    class     exec      in        raise     callable
     continue  finally   is        return 
     def       for       lambda    try       @ 
     as        with      namespace elif
@@ -41,7 +41,7 @@ define program
 end define
 
 define class_file
-	[opt namespace_stmt] [repeat endofline] [repeat import_stmt_newline] [class_definition] [repeat endofline]
+	[opt namespace_stmt] [repeat endofline] [repeat import_stmt_newline] [class_definition+]
 end define
 
 define namespace_stmt
@@ -49,15 +49,15 @@ define namespace_stmt
 end define
 
 define import_stmt_newline
-    'import [id] [opt ';] [repeat endofline] % FIXME
+    'import [id_with_dots] [opt ';] [repeat endofline] % FIXME
 end define
 
 define class_definition
-    [opt attribute_stmt_newline] [opt scope_modifier] 'class [id] [derive] [indent] [repeat class_member_newline] [dedent]
+    [opt attribute_stmt_newline] [opt scope_modifier] 'class [id] [generic_type_declaration] [opt derive] [indent] [repeat class_member_newline] [dedent] [repeat endofline]
 end define
 
 define derive
-    '( [id] ')
+    '( [type_base] ')
 end define
 
 define class_member_newline
@@ -67,6 +67,7 @@ end define
 define class_member
         [class_member_function_definition]
     |   [class_member_variable_declaration]
+    |   [callable_declaration]
 end define
 
 define class_member_variable_declaration
@@ -75,6 +76,10 @@ end define
 
 define class_member_function_definition
     [modifier] [function_header] [indent] [function_body] [dedent]
+end define
+
+define callable_declaration
+    'callable [id] [opt generic_type] '( [variable_declaration,] ') [function_type]
 end define
 
 define attribute_stmt_newline
@@ -102,11 +107,14 @@ define single_stmt
         [function_call]
     |   [assignment_stmt]
     |   [local_variable_definition]
+    |   [return_stmt]
+    |   [break_stmt]
 end define
 
 define group_stmt
         [if_stmt]
     |   [for_in_stmt]
+    |   [while_stmt]
 end define
 
 define assignment_stmt
@@ -121,12 +129,25 @@ define variable_initialization
     '= [expression]
 end define
 
+define return_stmt
+    'return [expression]
+end define
+
+define break_stmt
+    'break
+end define
+
 define if_stmt
-    [if_header] [indent] [repeat stmt_newline] [dedent] [repeat endofline] [opt else_stmt]
+    [if_header] [if_body] [repeat endofline] [opt else_stmt]
 end define
 
 define if_header
     'if [expression]
+end define
+
+define if_body
+        [indent] [repeat stmt_newline] [dedent]
+    |   ': [single_stmt]
 end define
 
 define else_stmt
@@ -142,6 +163,14 @@ define for_in_stmt
     'for [id] 'in [expression] [indent] [repeat stmt_newline] [dedent] [repeat endofline]
 end define
 
+define while_stmt
+    [while_header] [indent] [repeat stmt_newline] [dedent] [repeat endofline]
+end define
+
+define while_header
+    'while [expression]
+end define
+
 %
 
 define function_call
@@ -149,7 +178,7 @@ define function_call
 end define
 
 define variable_declaration
-    [id] as [id]
+    [id] as [type]
 end define
 
 define function_type
@@ -161,7 +190,20 @@ define modifier
 end define
 
 define generic_type
-    '[ 'of [id] ']
+    '[ 'of [id_with_dots] ']
+end define
+
+define generic_type_declaration
+    '[ 'of [id] [derive] ']
+end define
+
+define type
+    [id_with_dots] [opt generic_type]
+end define
+
+define type_base
+        'class
+    |   [id_with_dots]
 end define
 
 define scope_modifier
@@ -183,6 +225,11 @@ define primary
     |   '( [expression] ')
 end define
 
+define id_with_dots
+        [id]
+    |   [id] '. [id_with_dots]
+end define
+
 define op
         '==
     |   '!=
@@ -192,7 +239,10 @@ define op
     |   '-
     |   '/
     |   '*
-
+    |   '<
+    |   '>
+    |   '<=
+    |   '>=
 end define
 
 define assignment_op
@@ -207,6 +257,7 @@ define leftValue
         [id]
     |   [function_call]
     |   [leftValue] '. [id]
+    |   [leftValue] '[ [expression] ']
 end define
 
 define string
@@ -222,7 +273,7 @@ end define
 %
 
 define indent
-    ':[newline] '{ [IN] [repeat endofline]
+    ':[endofline] '{ [IN] [repeat endofline]
 end define
 
 define dedent

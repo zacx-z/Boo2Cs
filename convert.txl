@@ -6,21 +6,22 @@ function main
 		P [program]
 	by
 		P [convert_variable_declaration] [convert_function_declaration] [c_local_variable_definition] [convert_generic]
-		[convert_for_in] [convert_if] [convert_elif] [convert_single_name] [convert_import_stmt]
+		[convert_for_in] [convert_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
+		[convert_while] [c_generic_type_declaration]
 		[convert_default_function_declaration] % comment this to forbidden
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent]
 end function
 
 rule convert_import_stmt
 	replace [import_stmt_newline]
-		'import N[id] S [opt ';] E [repeat endofline]
+		'import N[id_with_dots] S [opt ';] E [repeat endofline]
 	by
 		'using N '; E
 end rule
 
 rule convert_variable_declaration
 	replace [variable_declaration]
-		N [id] as T[id]
+		N [id] as T [type]
 	by
 		T N
 end rule
@@ -61,9 +62,25 @@ rule convert_elif
 	replace [elif_header]
 		'elif E [expression]
 	deconstruct not E
-		'( _E [expression] ')
+		'( _ [expression] ')
 	by
 		'else 'if '( E ')
+end rule
+
+rule convert_if_body
+	replace [if_body]
+		': S [single_stmt]
+	by
+		S ';
+end rule
+
+rule convert_while
+	replace [while_header]
+		'while E [expression]
+	deconstruct not E
+		'( _ [expression] ')
+	by
+		while '( E')
 end rule
 
 rule convert_single_name
@@ -71,6 +88,13 @@ rule convert_single_name
 		'single
 	by
 		'float
+end rule
+
+rule c_generic_type_declaration
+	replace [generic_type_declaration]
+		'[ 'of N [id] '( T [type_base] ') ']
+	by
+		'< N '> 'where N ': T
 end rule
 
 rule convert_generic
@@ -103,8 +127,8 @@ end rule
 
 rule convert_indent
 	replace [indent]
-		': _ [newline] '{ NL [repeat endofline]
+		': C [opt comment] _ [newline] '{ NL [repeat endofline]
 	by
-		'{ NL
+		'{ C NL
 end rule
 
