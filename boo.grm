@@ -1,0 +1,154 @@
+#define COMMENTS
+#pragma -newline -w 32000
+
+
+% Boo tokens
+tokens 
+    % Boo string forms - shortstrings are already captured by [stringlit] and [charlit]
+    % All may be preceded by a stringprefix, see [stringliteral] below
+    longstringlit        "\"\"\"#[(\"\"\")]*\"\"\""
+    longcharlit          "'''#[(''')]*'''"
+
+    pointfloat   "\d*.\d+([Ee][+-]?\d+)?f?"        % other forms covered by [floatnumber]
+                 | "\d+.\d*([Ee][+-]?\d+)?f?"
+end tokens
+
+keys 
+    and       del       from      'not       while 
+    elif      global    or        of
+    'assert    else      if        pass      yield 
+    break     except    'import    'print 
+    class     exec      in        raise 
+    continue  finally   is        return 
+    def       for       lambda    try       @ 
+    as        with      namespace
+end keys 
+
+define program
+    [class_file]
+end define
+
+define class_file
+	[opt namespace_stmt] [repeat endofline] [repeat import_stmt_newline] [class_definition] [repeat endofline]
+end define
+
+define namespace_stmt
+	'namespace [id] [opt ';]
+end define
+
+define import_stmt_newline
+    'import [id] [opt ';] [repeat endofline]
+end define
+
+define class_definition
+    'class [id] [indent] [repeat newline] [repeat class_member_newline] [dedent]
+end define
+
+define class_member_newline
+    [opt attribute_stmt_newline] [class_member] [repeat endofline]
+end define
+
+define class_member
+        [class_member_variable_declaration]
+    |   [class_member_function_definition]
+end define
+
+define class_member_variable_declaration
+    [modifier] [variable_declaration] [opt ';]
+end define
+
+define class_member_function_definition
+    [modifier] [function_header] [indent] [repeat endofline] [function_body] [dedent]
+end define
+
+define attribute_stmt_newline
+    '[ [function_call] '] [repeat endofline]
+end define
+
+define function_header
+    'def [id] '( [variable_declaration,] ') [opt function_type]
+end define
+
+define function_body
+    [repeat imperative_stmt_newline]
+end define
+
+define imperative_stmt_newline
+    [imperative_stmt] [opt ';] [repeat endofline]
+end define
+
+define imperative_stmt
+        [function_call]
+    |   [assignment_stmt]
+end define
+
+define assignment_stmt
+    [leftValue] '= [expression]
+end define
+
+%
+
+define function_call
+    [leftValue] [opt generic_type] '( [expression,] ')
+end define
+
+define variable_declaration
+    [id] as [id]
+end define
+
+define function_type
+    as [id]
+end define
+
+define modifier
+    [opt 'static] [opt scope_modifier]
+end define
+
+define generic_type
+    '[ 'of [id] ']
+end define
+
+define scope_modifier
+    'public | 'protected | 'private
+end define
+
+%
+
+define expression
+    [primary]
+    |   [function_call]
+end define
+
+define primary
+    [number] | [stringlit] | 'true | 'false | [leftValue] | [pointfloat] | [arraylit]
+end define
+
+define leftValue
+        [id]
+    |   [function_call]
+    |   [leftValue] '. [id]
+end define
+
+define string
+        [stringlit] 
+    |   [charlit] 
+    |   [longstringlit] 
+    |   [longcharlit] 
+end define
+
+define arraylit
+    '( [expression] ', [expression,]')
+end define
+%
+
+define indent
+    ':[newline] '{ [IN]
+end define
+
+define dedent
+    [EX] '}
+end define
+
+define endofline
+	[opt comment] [newline]
+end define

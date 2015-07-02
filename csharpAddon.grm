@@ -1,0 +1,20 @@
+
+redefine variable_declaration
+		...
+	|	[id] [id]
+end redefine
+
+redefine function_header
+		...
+	|	[id] [id] '([variable_declaration,]')
+end redefine
+
+redefine generic_type
+		...
+	|	'< [id] '>
+end redefine
+
+redefine indent
+		...
+	|	'{ [IN]
+end redefine
