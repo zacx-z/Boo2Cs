@@ -39,7 +39,7 @@ rule c_local_variable_definition
 end rule
 
 rule add_semicolon
-	replace [single_stmt_newline]
+	replace [stmt_newline]
 		S [single_stmt] NL [repeat endofline]
 	by
 		S '; NL
@@ -51,3 +51,4 @@ rule convert_indent
 	by
 		'{ NL
 end rule
+
