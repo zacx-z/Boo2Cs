@@ -1,4 +1,9 @@
 
+redefine import_stmt_newline
+		...
+    |	'using [id] [opt ';] [repeat endofline]
+end redefine
+
 redefine variable_declaration
 		...
 	|	[id] [id]
@@ -12,6 +17,16 @@ end redefine
 redefine function_header
 		...
 	|	[id] [id] '([variable_declaration,]')
+end redefine
+
+redefine for_in_stmt
+		...
+	|	'foreach '([id] [id] 'in [expression] ') [indent] [repeat stmt_newline] [dedent] [repeat endofline]
+end redefine
+
+redefine elif_header
+		...
+	|	'else 'if [expression]
 end redefine
 
 redefine generic_type

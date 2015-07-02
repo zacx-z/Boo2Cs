@@ -49,7 +49,7 @@ define namespace_stmt
 end define
 
 define import_stmt_newline
-    'import [id] [opt ';] [repeat endofline]
+    'import [id] [opt ';] [repeat endofline] % FIXME
 end define
 
 define class_definition
@@ -65,8 +65,8 @@ define class_member_newline
 end define
 
 define class_member
-        [class_member_variable_declaration]
-    |   [class_member_function_definition]
+        [class_member_function_definition]
+    |   [class_member_variable_declaration]
 end define
 
 define class_member_variable_declaration
@@ -122,12 +122,20 @@ define variable_initialization
 end define
 
 define if_stmt
-    'if [expression] [indent] [repeat stmt_newline] [dedent] [repeat endofline] [opt else_stmt]
+    [if_header] [indent] [repeat stmt_newline] [dedent] [repeat endofline] [opt else_stmt]
+end define
+
+define if_header
+    'if [expression]
 end define
 
 define else_stmt
-        'elif [expression] [indent] [repeat stmt_newline] [dedent] [repeat endofline] [opt else_stmt]
+        [elif_header] [indent] [repeat stmt_newline] [dedent] [repeat endofline] [opt else_stmt]
     |   'else [indent] [repeat stmt_newline] [dedent] [repeat endofline]
+end define
+
+define elif_header
+    'elif [expression]
 end define
 
 define for_in_stmt
