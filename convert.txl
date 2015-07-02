@@ -5,7 +5,7 @@ function main
 	replace [program]
 		P [program]
 	by
-		P [convert_variable_declaration] [convert_function_declaration] [convert_generic] [convert_indent]
+		P [convert_variable_declaration] [convert_function_declaration] [c_local_variable_definition] [convert_generic] [add_semicolon] [convert_indent]
 end function
 
 rule convert_variable_declaration
@@ -31,9 +31,23 @@ rule convert_generic
 		'< T'>
 end rule
 
+rule c_local_variable_definition
+	replace [local_variable_definition]
+		N [id] 'as T [id] '= E [expression]
+	by
+		T N '= E ';
+end rule
+
+rule add_semicolon
+	replace [single_stmt_newline]
+		S [single_stmt] NL [repeat endofline]
+	by
+		S '; NL
+end rule
+
 rule convert_indent
 	replace [indent]
-		': _ [newline] '{
+		': _ [newline] '{ NL [repeat endofline]
 	by
-		'{
+		'{ NL
 end rule

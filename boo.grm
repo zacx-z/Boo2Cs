@@ -22,7 +22,13 @@ keys
     continue  finally   is        return 
     def       for       lambda    try       @ 
     as        with      namespace
-end keys 
+end keys
+
+compounds
+    == != >= <=
+    += -= *= /=
+    ++ --
+end compounds
 
 define program
     [class_file]
@@ -41,7 +47,11 @@ define import_stmt_newline
 end define
 
 define class_definition
-    'class [id] [indent] [repeat newline] [repeat class_member_newline] [dedent]
+    [attribute_stmt_newline] [opt scope_modifier] 'class [id] [derive] [indent] [repeat class_member_newline] [dedent]
+end define
+
+define derive
+    '( [id] ')
 end define
 
 define class_member_newline
@@ -58,7 +68,7 @@ define class_member_variable_declaration
 end define
 
 define class_member_function_definition
-    [modifier] [function_header] [indent] [repeat endofline] [function_body] [dedent]
+    [modifier] [function_header] [indent] [function_body] [dedent]
 end define
 
 define attribute_stmt_newline
@@ -70,20 +80,38 @@ define function_header
 end define
 
 define function_body
-    [repeat imperative_stmt_newline]
+    [repeat single_stmt_newline]
 end define
 
-define imperative_stmt_newline
-    [imperative_stmt] [opt ';] [repeat endofline]
+define single_stmt_newline
+        [single_stmt] [opt ';] [repeat endofline]
+    |   [group_stmt]
 end define
 
-define imperative_stmt
+define single_stmt
         [function_call]
     |   [assignment_stmt]
+    |   [local_variable_definition]
+end define
+
+define group_stmt
+    [if_stmt]
 end define
 
 define assignment_stmt
     [leftValue] '= [expression]
+end define
+
+define local_variable_definition
+    [id] as [id] '= [expression]
+end define
+
+define if_stmt
+    'if [expression] [indent] [repeat single_stmt_newline] [dedent] [repeat endofline] [opt else_stmt]
+end define
+
+define else_stmt
+    'else [indent] [repeat single_stmt_newline] [dedent] [repeat endofline]
 end define
 
 %
@@ -115,12 +143,28 @@ end define
 %
 
 define expression
-    [primary]
+        [primary]
     |   [function_call]
+    |   [expression] [op] [expression]
+    |   '- [expression]
 end define
 
 define primary
-    [number] | [stringlit] | 'true | 'false | [leftValue] | [pointfloat] | [arraylit]
+        [number] | [stringlit] | 'true | 'false | [leftValue] | [pointfloat] | [arraylit]
+    |   [expression] 'as [id]
+    |   '( [expression] ')
+end define
+
+define op
+        '==
+    |   '!=
+    |   and
+    |   or
+    |   '+
+    |   '-
+    |   '/
+    |   '*
+
 end define
 
 define leftValue
@@ -142,7 +186,7 @@ end define
 %
 
 define indent
-    ':[newline] '{ [IN]
+    ':[newline] '{ [IN] [repeat endofline]
 end define
 
 define dedent
