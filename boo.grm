@@ -23,13 +23,14 @@ keys
     continue  finally   is        return 
     def       for       lambda    try       @ 
     as        with      namespace elif      struct
-    constructor
+    constructor         get       set       pass
 end keys
 
 compounds
     == != >= <=
     += -= *= /=
     ++ -- << >>
+    **
 end compounds
 
 comments
@@ -77,12 +78,25 @@ end define
 
 define class_member
         [class_member_function_definition]
+    |   [class_member_property_definition]
     |   [class_member_variable_declaration]
     |   [callable_declaration]
 end define
 
 define class_member_variable_declaration
     [modifier] [variable_declaration] [opt variable_initialization] [opt ';]
+end define
+
+define class_member_property_definition
+    [modifier] [variable_declaration] [indent] [getter] [opt setter] [dedent]
+end define
+
+define getter
+    'get [indent] [function_body] [dedent] [repeat endofline]
+end define
+
+define setter
+    'set [indent] [function_body] [dedent] [repeat endofline]
 end define
 
 define class_member_function_definition
@@ -125,6 +139,8 @@ define single_stmt
     |   [local_variable_definition]
     |   [return_stmt]
     |   [break_stmt]
+    |   [yield_stmt]
+    |   'pass
 end define
 
 define group_stmt
@@ -147,6 +163,10 @@ end define
 
 define return_stmt
     'return [expression]
+end define
+
+define yield_stmt
+    'yield [expression]
 end define
 
 define break_stmt
@@ -214,7 +234,12 @@ define generic_type_declaration
 end define
 
 define type
-    [id_with_dots] [opt generic_type]
+        [id_with_dots] [opt generic_type]
+    |   [array_type]
+end define
+
+define array_type
+    '( [type] ')
 end define
 
 define type_base
@@ -233,12 +258,14 @@ define expression
     |   [expression] [dual_op] [expression]
     |   '- [primary]
     |   'not [primary]
-    |   [expression] 'as [id]
+    |   [expression] 'as [id_with_dots]
+    |   [expression] 'cast [id_with_dots]
 end define
 
 define primary
         [literal]
     |   '( [expression] ')
+    |   [primary] '[ [expression] ']
     |   [function_call]
     |   [primary] '. [id]
     |   [id]
@@ -270,6 +297,8 @@ define dual_op
     |   '<<
     |   '|
     |   'in
+    |   '^
+    |   '**
 end define
 
 define assignment_op

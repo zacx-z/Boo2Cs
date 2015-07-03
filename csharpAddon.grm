@@ -2,6 +2,15 @@ keys
 	delegate
 end keys
 
+compounds
+	[]
+end compounds
+
+redefine derive
+		...
+	|	': [type_base]
+end redefine
+
 redefine import_stmt_newline
 		...
     |	'using [id_with_dots] [opt ';] [repeat endofline]
@@ -14,7 +23,7 @@ end redefine
 
 redefine local_variable_definition
 		...
-	|	[id] [id] '= [expression] ';
+	|	[id] [id] '= [expression]
 end redefine
 
 redefine function_header
@@ -55,6 +64,11 @@ end redefine
 redefine constructor_header
 		...
 	|	[id] '( [variable_declaration,] ')
+end redefine
+
+redefine array_type
+		...
+	|	[type] '[]
 end redefine
 
 define where_clause
