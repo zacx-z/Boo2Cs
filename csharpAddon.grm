@@ -52,6 +52,11 @@ redefine callable_declaration
 	|	[opt modifier] 'delegate [type] [id] [opt generic_type] '( [variable_declaration,] ')
 end redefine
 
+redefine constructor_header
+		...
+	|	[id] '( [variable_declaration,] ')
+end redefine
+
 define where_clause
 	'where [id] ': [type_base]
 end define

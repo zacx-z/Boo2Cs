@@ -9,8 +9,35 @@ function main
 		[convert_for_in] [convert_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
 		[convert_while] [c_generic_type_declaration] [convert_callable]
 		[convert_default_function_declaration] % comment this to forbidden
+		[convert_constructor_name_class] [convert_constructor_name_struct]
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent] [convert_comment]
 end function
+
+rule convert_constructor_name_class
+	replace $ [class_definition]
+		C [class_definition]
+	deconstruct C
+	    A [opt attribute_stmt_newline] S [opt scope_modifier] 'class N [id] G [opt generic_type_declaration] D [opt derive] Body [class_body]
+	by
+		A S 'class N G D Body [convert_constructor_name_struct] [convert_constructor_name_class] [replace_constructor N]
+end rule
+
+rule convert_constructor_name_struct
+	replace $ [struct_definition]
+		C [struct_definition]
+	deconstruct C
+	    S [opt scope_modifier] 'struct N [id] Body [class_body]
+	by
+		S 'struct N Body [convert_constructor_name_struct] [convert_constructor_name_class] [replace_constructor N]
+end rule
+
+
+rule replace_constructor Name [id]
+	replace [constructor_header]
+	    'def 'constructor '( P [variable_declaration,] ')
+	by
+		Name '( P ')
+end rule
 
 rule convert_import_stmt
 	replace [import_stmt_newline]

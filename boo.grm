@@ -23,6 +23,7 @@ keys
     continue  finally   is        return 
     def       for       lambda    try       @ 
     as        with      namespace elif      struct
+    constructor
 end keys
 
 compounds
@@ -53,11 +54,15 @@ define import_stmt_newline
 end define
 
 define class_definition
-    [opt attribute_stmt_newline] [opt scope_modifier] 'class [id] [opt generic_type_declaration] [opt derive] [indent] [repeat class_member_newline] [dedent] [repeat endofline]
+    [opt attribute_stmt_newline] [opt scope_modifier] 'class [id] [opt generic_type_declaration] [opt derive] [class_body]
+end define
+
+define class_body
+    [indent] [repeat class_member_newline] [dedent] [repeat endofline]
 end define
 
 define struct_definition
-    [opt scope_modifier] 'struct [id] [indent] [repeat class_member_newline] [dedent] [repeat endofline]
+    [opt scope_modifier] 'struct [id] [class_body] [repeat endofline]
 end define
 
 define derive
@@ -97,7 +102,12 @@ define _inside_attribute
 end define
 
 define function_header
-    'def [id] '( [variable_declaration,] ') [opt function_type]
+        'def [id] '( [variable_declaration,] ') [opt function_type]
+    |   [constructor_header]
+end define
+
+define constructor_header
+    'def 'constructor '( [variable_declaration,] ')
 end define
 
 define function_body
