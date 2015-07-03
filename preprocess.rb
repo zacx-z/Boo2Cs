@@ -44,7 +44,7 @@ File.open(ARGV[0], "r") do |file|
         end
     end
 
-emptyLines.each do |line| puts line end
+    emptyLines.each do |line| puts line end
     emptyLines = 0
 end
 
