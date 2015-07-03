@@ -1,9 +1,16 @@
 #!/bin/sh
+show_help() {
+    echo "conv <boo-code> [-o <output-file>]"
+}
 if [[ $# == 0 ]]; then
-    echo "Please specify an input file"
+    show_help
 else
     while [[ $# > 0 ]]; do
         case "$1" in
+            -h)
+                show_help
+                exit 0
+                ;;
             -o)
                 OUTPUT_FILE=$2
                 shift
