@@ -62,6 +62,11 @@ redefine constructor_header
 	|	[id] '( [variable_declaration,] ')
 end redefine
 
+redefine enum_item
+		...
+	|	[id] ',
+end redefine
+
 redefine array_type
 		...
 	|	[type] '[ [repeat ',] ']

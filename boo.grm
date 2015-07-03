@@ -68,6 +68,18 @@ define struct_definition
     [opt scope_modifier] 'struct [id] [class_body] [repeat endofline]
 end define
 
+define enum_definition
+    [scope_modifier] 'enum [id] [enum_body] [repeat endofline]
+end define
+
+define enum_body
+    [indent] [enum_item+] [dedent]
+end define
+
+define enum_item
+    [id] [endofline+]
+end define
+
 define derive
     '( [type_base] ')
 end define
@@ -80,6 +92,7 @@ define class_member_newline
         [opt attribute_stmt_newline] [class_member] [repeat endofline]
     |   [class_definition]
     |   [struct_definition]
+    |   [enum_definition]
 end define
 
 define class_member
@@ -135,13 +148,17 @@ define function_body
 end define
 
 define stmt_newline
-        [single_stmt] [opt ';] [repeat endofline]
+        [single_stmt] [delimiter] [repeat endofline]
     |   [group_stmt]
 end define
 
+define delimiter
+    '; | [opt ';] [endofline]
+end define
+
 define single_stmt
-        [function_call]
-    |   [assignment_stmt]
+        [assignment_stmt]
+    |   [function_call]
     |   [local_variable_definition]
     |   [return_stmt]
     |   [break_stmt]
@@ -183,7 +200,7 @@ end define
 
 define if_stmt
         [if_header] [if_body] [repeat endofline] [opt else_stmt]
-    |   [single_stmt] [if_header]
+    |   [single_stmt] [if_header] [opt ';] [repeat endofline+]
 end define
 
 define if_header
@@ -219,7 +236,7 @@ end define
 %
 
 define function_call
-    [primary] [opt generic_type] '( [expression,] ')
+    [objvalue] [opt generic_type] '( [expression,] ')
 end define
 
 define variable_declaration
@@ -276,15 +293,21 @@ end define
 
 define primary
         [literal]
+    |   [objvalue]
+end define
+
+define objvalue
+        [stringlit]
+    |   [arraylit]
     |   '( [expression] ')
-    |   [primary] '[ [expression,] ']
+    |   [objvalue] '[ [expression,] ']
     |   [function_call]
-    |   [primary] '. [id]
+    |   [objvalue] '. [id]
     |   [id]
 end define
 
 define literal
-    [number] | [stringlit] | 'true | 'false | [pointfloat] | [arraylit] | null
+    [number] | 'true | 'false | [pointfloat] | null
 end define
 
 define id_with_dots
@@ -322,12 +345,7 @@ define assignment_op
 end define
 
 define leftValue
-        [id]
-    |   [function_call] '. [id]
-    |   [leftValue] '. [id]
-    |   [leftValue] '[ [expression,] ']
-    |   '( [leftValue] ')
-    |   [leftValue] 'as [type]
+    [objvalue]
 end define
 
 define string

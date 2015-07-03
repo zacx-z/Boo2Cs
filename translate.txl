@@ -6,8 +6,9 @@ function main
 		P [program]
 	by
 		P [convert_variable_declaration] [convert_function_declaration] [c_local_variable_definition] [convert_generic]
-		[convert_for_in] [convert_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
-		[convert_while] [c_generic_type_declaration] [convert_callable] [convert_array_type_1] [convert_array_type_2] [convert_yield]
+		[convert_for_in] [convert_if] [convert_reverse_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
+		[convert_while] [c_generic_type_declaration] [convert_callable] [convert_array_type_1] [convert_array_type_2] [convert_enum_definition]
+		[convert_yield]
 		[convert_default_function_declaration] % comment this to forbidden
 		[convert_constructor_name_class] [convert_constructor_name_struct] [convert_derive]
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent] [convert_comment]
@@ -51,6 +52,13 @@ rule convert_import_stmt
 		'import N[id_with_dots] S [opt ';] E [repeat endofline]
 	by
 		'using N '; E
+end rule
+
+rule convert_enum_definition
+	replace [enum_item]
+		N [id] _ [endofline+]
+	by
+		N ',
 end rule
 
 rule convert_variable_declaration
@@ -104,6 +112,13 @@ rule convert_if
 		'( _E [expression] ')
 	by
 		'if '( E ')
+end rule
+
+rule convert_reverse_if
+	replace [if_stmt]
+		S [single_stmt] H [if_header] _ [opt ';] _ [repeat endofline+]
+	by
+		H S ';
 end rule
 
 rule convert_elif
@@ -182,9 +197,11 @@ end rule
 
 rule add_semicolon_stmt
 	replace [stmt_newline]
-		S [single_stmt] NL [repeat endofline]
+		S [single_stmt] D [delimiter] NL [repeat endofline]
+	deconstruct D
+		L [endofline]
 	by
-		S '; NL
+		S '; L NL
 end rule
 
 rule add_semicolon_member_variable

@@ -3,17 +3,17 @@ def getTab line
 end
 
 def isEmpty line
-    return line.chars.all? { |c| c == ' ' or c == "\t" or c == "\n"}
+    return (line.strip.start_with?('#', '//') or line.chars.all? { |c| c == ' ' or c == "\t" or c == "\n"})
 end
 
 File.open(ARGV[0], "r") do |file|
     tabStack = [""]
-    emptyLines = 0
+    emptyLines = []
     while not file.eof? do
         line = file.readline
         line.slice! /\ufeff+/
         if isEmpty line then
-            emptyLines += 1
+            emptyLines << line
         else
             currentTab = getTab line
 
@@ -27,8 +27,8 @@ File.open(ARGV[0], "r") do |file|
                 end
             end
 
-            emptyLines.times do putc "\n" end
-            emptyLines = 0
+            emptyLines.each do |line| puts line end
+            emptyLines = []
 
             puts line
         end
@@ -41,7 +41,7 @@ File.open(ARGV[0], "r") do |file|
         end
     end
 
-    emptyLines.times do putc "\n" end
+emptyLines.each do |line| puts line end
     emptyLines = 0
 end
 

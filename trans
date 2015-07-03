@@ -12,6 +12,12 @@ translate_file() {
     fi
 }
 
+cleanup() {
+    trap SIGINT
+    rm -f tmp.log
+    exit
+}
+
 if [[ $# == 0 ]]; then
     show_help
 else
@@ -44,20 +50,26 @@ else
         mkdir -p $OUTPUT_FILE
         IFS=$'\n'
         rm -f error.log
+
+        trap "cleanup" INT
+
         for f in `find $INPUT_FOLDER -name *.boo`; do
             fname=${f#$INPUT_FOLDER'/'}
             echo $f
             echo "-------
 "$f"
-">> error.log
+"> tmp.log
             mkdir -p $OUTPUT_FILE"/"${fname%/*}
-            translate_file $f $OUTPUT_FILE"/"${fname%boo}"cs" 2>> error.log
+            translate_file $f $OUTPUT_FILE"/"${fname%boo}"cs" 2>> tmp.log
             if [[ $? = 0 ]]; then
                 echo "\033[0;32mOK\033[0m"
             else
                 echo "\033[0;31mFailed\033[0m"
+                cat tmp.log >> error.log
             fi
         done
+        rm -f tmp.log
+        trap SIGINT
     fi
 fi
 
