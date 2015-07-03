@@ -13,4 +13,4 @@ To use this tool, you have to install TXL first.
 trans <boo-source-file> [-o <output-file>]
 trans -R <source-file-directory> [-o <output-folder>]
 ```
-When translating files recursively under a directory, the errors goes to `error.log` file.
+When translating files recursively under a directory, the tool writes errors to `error.log`.
