@@ -2,14 +2,15 @@ Translate Boo code to C# code using [TXL] (http://txl.ca).
 
 To use this tool, you have to install TXL first.
 
-## Requirement
+## Requirements
  - Ruby
  - TXL
  - Shell
 
 ## How to Use
 
-```sh
-trans <boo-code> [-o <output-file>]
 ```
-
+trans <boo-source-file> [-o <output-file>]
+trans -R <source-file-directory> [-o <output-folder>]
+```
+When translating files recursively under a directory, the errors goes to `error.log` file.

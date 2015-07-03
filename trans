@@ -1,6 +1,7 @@
 #!/bin/sh
 show_help() {
-    echo "trans <boo-code> [-o <output-file>]"
+    echo "trans <boo-source-file> [-o <output-file>]
+trans -R <source-file-directory> [-o <output-folder>]"
 }
 
 translate_file() {
