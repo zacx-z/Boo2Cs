@@ -1,6 +1,6 @@
 #!/bin/sh
 show_help() {
-    echo "conv <boo-code> [-o <output-file>]"
+    echo "trans <boo-code> [-o <output-file>]"
 }
 
 translate_file() {
@@ -13,8 +13,8 @@ translate_file() {
 }
 
 cleanup() {
-    trap SIGINT
     rm -f tmp.log
+    trap - SIGHUP SIGINT SIGTERM
     exit
 }
 
@@ -47,11 +47,14 @@ else
         if [[ $OUTPUT_FILE = "" ]]; then
             OUTPUT_FILE="output"
         fi
+        SUC=0
+        FAIL=0
+
         mkdir -p $OUTPUT_FILE
         IFS=$'\n'
         rm -f error.log
 
-        trap "cleanup" INT
+        trap cleanup SIGHUP SIGINT SIGTERM
 
         for f in `find $INPUT_FOLDER -name *.boo`; do
             fname=${f#$INPUT_FOLDER'/'}
@@ -63,13 +66,16 @@ else
             translate_file $f $OUTPUT_FILE"/"${fname%boo}"cs" 2>> tmp.log
             if [[ $? = 0 ]]; then
                 echo "\033[0;32mOK\033[0m"
+                let SUC=$SUC+1
             else
                 echo "\033[0;31mFailed\033[0m"
                 cat tmp.log >> error.log
+                let FAIL=$FAIL+1
             fi
         done
         rm -f tmp.log
-        trap SIGINT
+        echo "Succeeded: "$SUC" Failed: "$FAIL
+        trap - SIGHUP SIGINT SIGTERM
     fi
 fi
 

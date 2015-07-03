@@ -12,6 +12,9 @@ File.open(ARGV[0], "r") do |file|
     while not file.eof? do
         line = file.readline
         line.slice! /\ufeff+/
+        if line.end_with? "\\\n" then
+            line = line[0..-3] + file.readline
+        end
         if isEmpty line then
             emptyLines << line
         else

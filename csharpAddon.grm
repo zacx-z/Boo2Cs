@@ -9,7 +9,7 @@ end redefine
 
 redefine import_stmt_newline
 		...
-    |	'using [id_with_dots] [opt ';] [repeat endofline]
+    |	'using [id_with_dots] [opt import_alias] [opt ';] [repeat endofline]
 end redefine
 
 redefine variable_declaration
@@ -44,7 +44,7 @@ end redefine
 
 redefine generic_type
 		...
-	|	'< [id] '>
+	|	'< [type,] '>
 end redefine
 
 redefine generic_type_declaration

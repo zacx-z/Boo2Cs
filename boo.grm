@@ -13,10 +13,11 @@ tokens
     pointfloat   "\d*.\d+([Ee][+-]?\d+)?f?"        % other forms covered by [floatnumber]
                  | "\d+.\d*([Ee][+-]?\d+)?f?"
                  | "\d+f"
+    hex         "0x[0-9A-Z]+"
 end tokens
 
 keys 
-    and       del       from      'not       while 
+    and       from      'not       while 
     elif      global    or        of
     'assert    else      if        pass      yield 
     break     except    'import    'print 
@@ -25,14 +26,14 @@ keys
     def       for       lambda    try       @ 
     as        with      namespace elif      struct
     constructor         get       set       pass
-    null      override  enum
+    null      override  enum      isa       virtual
 end keys
 
 compounds
     == != >= <=
     += -= *= /=
     ++ -- << >>
-    **
+    ** =~ |= &=
 end compounds
 
 comments
@@ -45,27 +46,36 @@ define program
 end define
 
 define class_file
-	[opt namespace_stmt] [repeat endofline] [repeat import_stmt_newline] [class_definition+]
+	[opt namespace_stmt] [repeat endofline] [repeat import_stmt_newline] [class_or_struct_definition+]
 end define
 
 define namespace_stmt
-	'namespace [id] [opt ';]
+	'namespace [id_with_dots] [opt ';]
 end define
 
 define import_stmt_newline
-    'import [id_with_dots] [opt ';] [repeat endofline]
+    'import [id_with_dots] [opt import_alias] [opt ';] [repeat endofline]
+end define
+
+define import_alias
+    'as [id]
+end define
+
+define class_or_struct_definition
+    [class_definition] | [struct_definition]
 end define
 
 define class_definition
-    [opt attribute_stmt_newline] [opt scope_modifier] 'class [id] [opt generic_type_declaration] [opt derive] [class_body]
+    [repeat attribute_stmt_newline] [opt scope_modifier] 'class [id] [opt generic_type_declaration] [opt derive] [class_body]
 end define
 
 define class_body
-    [indent] [repeat class_member_newline] [dedent] [repeat endofline]
+        [indent] [repeat class_member_newline] [dedent] [repeat endofline]
+    |   [indent] 'pass [repeat endofline] [dedent] [repeat endofline]
 end define
 
 define struct_definition
-    [opt scope_modifier] 'struct [id] [class_body] [repeat endofline]
+    [opt scope_modifier] 'struct [id] [class_body]
 end define
 
 define enum_definition
@@ -89,9 +99,9 @@ define constraint
 end define
 
 define class_member_newline
-        [opt attribute_stmt_newline] [class_member] [repeat endofline]
-    |   [class_definition]
-    |   [struct_definition]
+        [repeat attribute_stmt_newline] [class_member] [repeat endofline]
+    |   [repeat attribute_stmt_newline] [class_definition]
+    |   [repeat attribute_stmt_newline] [struct_definition]
     |   [enum_definition]
 end define
 
@@ -107,7 +117,7 @@ define class_member_variable_declaration
 end define
 
 define class_member_property_definition
-    [modifier] [variable_declaration] [indent] [getter] [opt setter] [dedent]
+    [modifier] [opt 'override] [variable_declaration] [indent] [opt getter] [opt setter] [dedent]
 end define
 
 define getter
@@ -119,11 +129,11 @@ define setter
 end define
 
 define class_member_function_definition
-    [modifier] [opt 'override] [function_header] [indent] [function_body] [dedent]
+    [modifier] [opt 'override] [opt 'virtual] [function_header] [indent] [function_body] [dedent]
 end define
 
 define callable_declaration
-    [opt modifier] 'callable [id] [opt generic_type] '( [variable_declaration,] ') [function_type]
+    [opt modifier] 'callable [id] [opt generic_type] '( [variable_declaration,] ') [type_declaration]
 end define
 
 define attribute_stmt_newline
@@ -135,7 +145,7 @@ define _inside_attribute
 end define
 
 define function_header
-        'def [id] [opt generic_type_declaration] '( [variable_declaration,] ') [opt function_type]
+        'def [id] [opt generic_type_declaration] '( [variable_declaration,] ') [opt type_declaration]
     |   [constructor_header]
 end define
 
@@ -161,8 +171,9 @@ define single_stmt
     |   [function_call]
     |   [local_variable_definition]
     |   [return_stmt]
-    |   [break_stmt]
     |   [yield_stmt]
+    |   'break
+    |   'continue
     |   'pass
     |   [primary] '++
     |   [primary] '--
@@ -187,15 +198,11 @@ define variable_initialization
 end define
 
 define return_stmt
-    'return [expression]
+    'return [opt expression]
 end define
 
 define yield_stmt
-    'yield [expression]
-end define
-
-define break_stmt
-    'break
+    'yield [opt expression]
 end define
 
 define if_stmt
@@ -222,7 +229,7 @@ define elif_header
 end define
 
 define for_in_stmt
-    'for [id] 'in [expression] [indent] [repeat stmt_newline] [dedent] [repeat endofline]
+    'for [id] [opt type_declaration] 'in [expression] [indent] [repeat stmt_newline] [dedent] [repeat endofline]
 end define
 
 define while_stmt
@@ -240,11 +247,11 @@ define function_call
 end define
 
 define variable_declaration
-    [id] as [type]
+    [id] 'as [type]
 end define
 
-define function_type
-    as [type]
+define type_declaration
+    'as [type]
 end define
 
 define modifier
@@ -252,7 +259,7 @@ define modifier
 end define
 
 define generic_type
-    '[ 'of [id_with_dots] ']
+    '[ 'of [type,] ']
 end define
 
 define generic_type_declaration
@@ -260,7 +267,7 @@ define generic_type_declaration
 end define
 
 define type
-        [id_with_dots] [opt generic_type]
+        [id_with_dots] [opt generic_type] [opt '?]
     |   [array_type]
 end define
 
@@ -297,17 +304,19 @@ define primary
 end define
 
 define objvalue
-        [stringlit]
+        [string]
     |   [arraylit]
     |   '( [expression] ')
     |   [objvalue] '[ [expression,] ']
+    |   [objvalue] '[ [expression] ': [opt expression] ']
+    |   [objvalue] '[ ': [expression] ']
     |   [function_call]
     |   [objvalue] '. [id]
     |   [id]
 end define
 
 define literal
-    [number] | 'true | 'false | [pointfloat] | null
+    [number] | 'true | 'false | [pointfloat] | null | [hex]
 end define
 
 define id_with_dots
@@ -324,6 +333,7 @@ define dual_op
     |   '-
     |   '/
     |   '*
+    |   '%
     |   '<
     |   '>
     |   '<=
@@ -334,6 +344,8 @@ define dual_op
     |   'in
     |   '^
     |   '**
+    |   '=~
+    |   'isa
 end define
 
 define assignment_op
@@ -342,6 +354,8 @@ define assignment_op
     |   '-=
     |   '*=
     |   '/=
+    |   '|=
+    |   '&=
 end define
 
 define leftValue
@@ -356,7 +370,8 @@ define string
 end define
 
 define arraylit
-    '( [expression] ', [expression,]')
+        '( [expression] ', [expression,]')
+    |   '( ', ')
 end define
 %
 
