@@ -326,6 +326,8 @@ define leftValue
     |   [function_call] '. [id]
     |   [leftValue] '. [id]
     |   [leftValue] '[ [expression,] ']
+    |   '( [leftValue] ')
+    |   [leftValue] 'as [type]
 end define
 
 define string
