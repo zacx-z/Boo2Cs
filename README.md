@@ -9,7 +9,6 @@ To use this tool, you have to install TXL first.
 
 ## How to Use
 
-In your computer,
 ```sh
 trans <boo-code> [-o <output-file>]
 ```
