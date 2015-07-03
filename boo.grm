@@ -1,5 +1,6 @@
 #pragma -newline -w 32000
 #pragma -comment
+% #pragma -raw
 
 
 % Boo tokens

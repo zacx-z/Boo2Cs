@@ -11,6 +11,7 @@ File.open(ARGV[0], "r") do |file|
     emptyLines = 0
     while not file.eof? do
         line = file.readline
+        line.slice! /\ufeff+/
         if isEmpty line then
             emptyLines += 1
         else
