@@ -2,10 +2,6 @@ keys
 	delegate
 end keys
 
-compounds
-	[]
-end compounds
-
 redefine derive
 		...
 	|	': [type_base]
@@ -23,7 +19,7 @@ end redefine
 
 redefine local_variable_definition
 		...
-	|	[id] [id] '= [expression]
+	|	[type] [id] [opt variable_initialization]
 end redefine
 
 redefine function_header
@@ -68,7 +64,7 @@ end redefine
 
 redefine array_type
 		...
-	|	[type] '[]
+	|	[type] '[ [repeat ',] ']
 end redefine
 
 redefine yield_stmt

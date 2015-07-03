@@ -12,7 +12,7 @@ tokens
 
     pointfloat   "\d*.\d+([Ee][+-]?\d+)?f?"        % other forms covered by [floatnumber]
                  | "\d+.\d*([Ee][+-]?\d+)?f?"
-                 | "\d+f?"
+                 | "\d+f"
 end tokens
 
 keys 
@@ -25,6 +25,7 @@ keys
     def       for       lambda    try       @ 
     as        with      namespace elif      struct
     constructor         get       set       pass
+    null      override  enum
 end keys
 
 compounds
@@ -52,7 +53,7 @@ define namespace_stmt
 end define
 
 define import_stmt_newline
-    'import [id_with_dots] [opt ';] [repeat endofline] % FIXME
+    'import [id_with_dots] [opt ';] [repeat endofline]
 end define
 
 define class_definition
@@ -105,7 +106,7 @@ define setter
 end define
 
 define class_member_function_definition
-    [modifier] [function_header] [indent] [function_body] [dedent]
+    [modifier] [opt 'override] [function_header] [indent] [function_body] [dedent]
 end define
 
 define callable_declaration
@@ -146,6 +147,8 @@ define single_stmt
     |   [break_stmt]
     |   [yield_stmt]
     |   'pass
+    |   [primary] '++
+    |   [primary] '--
 end define
 
 define group_stmt
@@ -159,7 +162,7 @@ define assignment_stmt
 end define
 
 define local_variable_definition
-    [id] as [id] [variable_initialization]
+    [id] as [type] [opt variable_initialization]
 end define
 
 define variable_initialization
@@ -179,7 +182,8 @@ define break_stmt
 end define
 
 define if_stmt
-    [if_header] [if_body] [repeat endofline] [opt else_stmt]
+        [if_header] [if_body] [repeat endofline] [opt else_stmt]
+    |   [single_stmt] [if_header]
 end define
 
 define if_header
@@ -244,7 +248,8 @@ define type
 end define
 
 define array_type
-    '( [type] ')
+        '( [type] ')
+    |   '( [type] ', [number] )
 end define
 
 define type_base
@@ -263,6 +268,8 @@ define expression
     |   [expression] [dual_op] [expression]
     |   '- [primary]
     |   'not [primary]
+    |   [primary] '++
+    |   [primary] '--
     |   [expression] 'as [id_with_dots]
     |   [expression] 'cast [id_with_dots]
 end define
@@ -270,14 +277,14 @@ end define
 define primary
         [literal]
     |   '( [expression] ')
-    |   [primary] '[ [expression] ']
+    |   [primary] '[ [expression,] ']
     |   [function_call]
     |   [primary] '. [id]
     |   [id]
 end define
 
 define literal
-    [number] | [stringlit] | 'true | 'false | [pointfloat] | [arraylit]
+    [number] | [stringlit] | 'true | 'false | [pointfloat] | [arraylit] | null
 end define
 
 define id_with_dots
@@ -318,7 +325,7 @@ define leftValue
         [id]
     |   [function_call] '. [id]
     |   [leftValue] '. [id]
-    |   [leftValue] '[ [expression] ']
+    |   [leftValue] '[ [expression,] ']
 end define
 
 define string

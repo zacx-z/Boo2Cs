@@ -43,11 +43,17 @@ else
         fi
         mkdir -p $OUTPUT_FILE
         IFS=$'\n'
+        rm -f error.log
         for f in `find $INPUT_FOLDER -name *.boo`; do
             fname=${f#$INPUT_FOLDER'/'}
             echo $f
             mkdir -p $OUTPUT_FILE"/"${fname%/*}
-            translate_file $f $OUTPUT_FILE"/"${fname%boo}"cs"
+            translate_file $f $OUTPUT_FILE"/"${fname%boo}"cs" 2>> error.log
+            if [[ $? = 0 ]]; then
+                echo "\033[0;32mOK\033[0m"
+            else
+                echo "\033[0;31mFailed\033[0m"
+            fi
         done
     fi
 fi

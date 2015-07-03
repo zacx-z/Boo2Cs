@@ -7,7 +7,7 @@ function main
 	by
 		P [convert_variable_declaration] [convert_function_declaration] [c_local_variable_definition] [convert_generic]
 		[convert_for_in] [convert_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
-		[convert_while] [c_generic_type_declaration] [convert_callable] [convert_array_type] [convert_yield]
+		[convert_while] [c_generic_type_declaration] [convert_callable] [convert_array_type_1] [convert_array_type_2] [convert_yield]
 		[convert_default_function_declaration] % comment this to forbidden
 		[convert_constructor_name_class] [convert_constructor_name_struct] [convert_derive]
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent] [convert_comment]
@@ -76,11 +76,18 @@ rule convert_default_function_declaration
 		'void N G '( P ')
 end rule
 
-rule convert_array_type
+rule convert_array_type_1
 	replace [array_type]
 		'( T [type] ')
 	by
-		T '[]
+		T '[']
+end rule
+
+rule convert_array_type_2
+	replace [array_type]
+		'( T [type], '2 ')
+	by
+		T '[',']
 end rule
 
 rule convert_for_in
@@ -161,9 +168,9 @@ end rule
 
 rule c_local_variable_definition
 	replace [local_variable_definition]
-		N [id] 'as T [id] '= E [expression]
+		N [id] 'as T [type] I [opt variable_initialization]
 	by
-		T N '= E
+		T N I
 end rule
 
 rule convert_yield
