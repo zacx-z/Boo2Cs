@@ -22,13 +22,13 @@ keys
     class     exec      in        raise     callable
     continue  finally   is        return 
     def       for       lambda    try       @ 
-    as        with      namespace elif
+    as        with      namespace elif      struct
 end keys
 
 compounds
     == != >= <=
     += -= *= /=
-    ++ --
+    ++ -- << >>
 end compounds
 
 comments
@@ -53,7 +53,11 @@ define import_stmt_newline
 end define
 
 define class_definition
-    [opt attribute_stmt_newline] [opt scope_modifier] 'class [id] [generic_type_declaration] [opt derive] [indent] [repeat class_member_newline] [dedent] [repeat endofline]
+    [opt attribute_stmt_newline] [opt scope_modifier] 'class [id] [opt generic_type_declaration] [opt derive] [indent] [repeat class_member_newline] [dedent] [repeat endofline]
+end define
+
+define struct_definition
+    [opt scope_modifier] 'struct [id] [indent] [repeat class_member_newline] [dedent] [repeat endofline]
 end define
 
 define derive
@@ -61,7 +65,9 @@ define derive
 end define
 
 define class_member_newline
-    [opt attribute_stmt_newline] [class_member] [repeat endofline]
+        [opt attribute_stmt_newline] [class_member] [repeat endofline]
+    |   [class_definition]
+    |   [struct_definition]
 end define
 
 define class_member
@@ -152,7 +158,7 @@ end define
 
 define else_stmt
         [elif_header] [indent] [repeat stmt_newline] [dedent] [repeat endofline] [opt else_stmt]
-    |   'else [indent] [repeat stmt_newline] [dedent] [repeat endofline]
+    |   'else [if_body] [repeat endofline]
 end define
 
 define elif_header
@@ -174,7 +180,7 @@ end define
 %
 
 define function_call
-    [leftValue] [opt generic_type] '( [expression,] ')
+    [primary] [opt generic_type] '( [expression,] ')
 end define
 
 define variable_declaration
@@ -214,15 +220,22 @@ end define
 
 define expression
         [primary]
-    |   [function_call]
-    |   [expression] [op] [expression]
-    |   '- [expression]
+    |   [expression] [dual_op] [expression]
+    |   '- [primary]
+    |   'not [primary]
+    |   [expression] 'as [id]
 end define
 
 define primary
-        [number] | [stringlit] | 'true | 'false | [leftValue] | [pointfloat] | [arraylit]
-    |   [expression] 'as [id]
+        [literal]
     |   '( [expression] ')
+    |   [function_call]
+    |   [primary] '. [id]
+    |   [id]
+end define
+
+define literal
+    [number] | [stringlit] | 'true | 'false | [pointfloat] | [arraylit]
 end define
 
 define id_with_dots
@@ -230,7 +243,7 @@ define id_with_dots
     |   [id] '. [id_with_dots]
 end define
 
-define op
+define dual_op
         '==
     |   '!=
     |   and
@@ -243,6 +256,10 @@ define op
     |   '>
     |   '<=
     |   '>=
+    |   '>>
+    |   '<<
+    |   '|
+    |   'in
 end define
 
 define assignment_op
@@ -255,7 +272,7 @@ end define
 
 define leftValue
         [id]
-    |   [function_call]
+    |   [function_call] '. [id]
     |   [leftValue] '. [id]
     |   [leftValue] '[ [expression] ']
 end define

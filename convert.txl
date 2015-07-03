@@ -9,7 +9,7 @@ function main
 		[convert_for_in] [convert_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
 		[convert_while] [c_generic_type_declaration] [convert_callable]
 		[convert_default_function_declaration] % comment this to forbidden
-		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent]
+		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent] [convert_comment]
 end function
 
 rule convert_import_stmt
@@ -137,5 +137,24 @@ rule convert_indent
 		': C [opt comment] _ [newline] '{ NL [repeat endofline]
 	by
 		'{ C NL
+end rule
+
+rule convert_comment
+	replace [comment]
+		M [comment]
+	construct F [comment]
+		M [: 1 1]
+	construct _L [number]
+		0
+	construct L [number]
+		_L [# M]
+	construct Rest [comment]
+		M [: 2 L]
+	construct T [comment]
+		'//
+	where
+		F [= "#"]
+	by
+		T [+ Rest]
 end rule
 
