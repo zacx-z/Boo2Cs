@@ -10,10 +10,10 @@ tokens
     longstringlit        "\"\"\"#[(\"\"\")]*\"\"\""
     longcharlit          "'''#[(''')]*'''"
 
+    hexinteger   "0[Xx][\dABCDEFabcdef]+" 
     pointfloat   "\d*.\d+([Ee][+-]?\d+)?f?"        % other forms covered by [floatnumber]
                  | "\d+.\d*([Ee][+-]?\d+)?f?"
                  | "\d+f"
-    hex         "0x[0-9A-Z]+"
 end tokens
 
 keys 
@@ -250,6 +250,10 @@ define variable_declaration
     [id] 'as [type]
 end define
 
+define variable_optional_declaration
+    [id] [opt type_declaration]
+end define
+
 define type_declaration
     'as [type]
 end define
@@ -285,6 +289,10 @@ define scope_modifier
     'public | 'protected | 'private
 end define
 
+define lambda_function_literal
+    '{ [variable_optional_declaration,] '| [expression] '}
+end define
+
 %
 
 define expression
@@ -312,11 +320,12 @@ define objvalue
     |   [objvalue] '[ ': [expression] ']
     |   [function_call]
     |   [objvalue] '. [id]
+    |   [lambda_function_literal]
     |   [id]
 end define
 
 define literal
-    [number] | 'true | 'false | [pointfloat] | null | [hex]
+    [number] | 'true | 'false | [pointfloat] | null | [hexinteger]
 end define
 
 define id_with_dots

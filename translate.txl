@@ -5,10 +5,10 @@ function main
 	replace [program]
 		P [program]
 	by
-		P [convert_variable_declaration] [convert_function_declaration] [c_local_variable_definition] [convert_generic]
+		P [convert_variable_declaration] [convert_variable_o_declaration] [convert_function_declaration] [c_local_variable_definition] [convert_generic]
 		[convert_for_in] [convert_if] [convert_reverse_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
 		[convert_while] [c_generic_type_declaration] [convert_callable] [convert_array_type_1] [convert_array_type_2] [convert_enum_definition]
-		[convert_yield] [convert_yield_null]
+		[convert_yield] [convert_yield_null] [convert_lambda_literal]
 		[convert_default_function_declaration] % comment this to forbidden
 		[convert_constructor_name_class] [convert_constructor_name_struct] [convert_derive]
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent] [convert_comment]
@@ -68,6 +68,13 @@ rule convert_variable_declaration
 		T N
 end rule
 
+rule convert_variable_o_declaration
+	replace [variable_optional_declaration]
+		N [id] as T [type]
+	by
+		T N
+end rule
+
 rule convert_function_declaration
 	replace [function_header]
 	    'def N [id] G [opt generic_type_declaration] '( P [variable_declaration,] ') T [opt type_declaration]
@@ -96,6 +103,13 @@ rule convert_array_type_2
 		'( T [type], '2 ')
 	by
 		T '[',']
+end rule
+
+rule convert_lambda_literal
+	replace [lambda_function_literal]
+		'{ P [variable_optional_declaration,] '| E [expression] '}
+	by
+		P '=> E
 end rule
 
 rule convert_for_in

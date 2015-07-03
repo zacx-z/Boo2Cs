@@ -2,6 +2,10 @@ keys
 	delegate
 end keys
 
+compounds
+	=>
+end compounds
+
 redefine derive
 		...
 	|	': [type_base]
@@ -13,6 +17,11 @@ redefine import_stmt_newline
 end redefine
 
 redefine variable_declaration
+		...
+	|	[type] [id]
+end redefine
+
+redefine variable_optional_declaration
 		...
 	|	[type] [id]
 end redefine
@@ -80,6 +89,11 @@ end redefine
 redefine constraint
 		...
 	|	'where [id] ': [type_base]
+end redefine
+
+redefine lambda_function_literal
+		...
+	|	[variable_optional_declaration,] '=> [expression]
 end redefine
 
 redefine indent
