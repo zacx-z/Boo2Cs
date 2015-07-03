@@ -1,0 +1,24 @@
+#!/bin/sh
+if [[ $# == 0 ]]; then
+    echo "Please specify an input file"
+else
+    while [[ $# > 0 ]]; do
+        case "$1" in
+            -o)
+                OUTPUT_FILE=$2
+                shift
+                ;;
+            *)
+                INPUT_FILE=$1
+                ;;
+        esac
+        shift
+    done
+    ruby preprocess.rb $INPUT_FILE > tmp
+    if [[ $OUTPUT_FILE = "" ]]; then
+        txl tmp convert.txl
+    else
+        txl tmp convert.txl > $OUTPUT_FILE
+    fi
+fi
+
