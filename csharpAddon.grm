@@ -71,6 +71,11 @@ redefine array_type
 	|	[type] '[]
 end redefine
 
+redefine yield_stmt
+		...
+	|	'yield 'return [expression]
+end redefine
+
 define where_clause
 	'where [id] ': [type_base]
 end define
