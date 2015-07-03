@@ -23,9 +23,9 @@ else
     done
     ruby preprocess.rb $INPUT_FILE > tmp
     if [[ $OUTPUT_FILE = "" ]]; then
-        txl tmp convert.txl
+        txl tmp translate.txl
     else
-        txl tmp convert.txl > $OUTPUT_FILE
+        txl tmp translate.txl > $OUTPUT_FILE
     fi
 fi
 

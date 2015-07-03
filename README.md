@@ -5,10 +5,12 @@ To use this tool, you have to install TXL first.
 ## Requirement
  - Ruby
  - TXL
+ - Shell
 
 ## How to Use
 
+In your computer,
 ```sh
-conv <boo-code> [-o <output-file>]
+trans <boo-code> [-o <output-file>]
 ```
 
