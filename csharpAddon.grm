@@ -1,5 +1,5 @@
 keys
-	delegate
+	delegate	var
 end keys
 
 compounds
@@ -38,7 +38,7 @@ end redefine
 
 redefine for_in_stmt
 		...
-	|	'foreach '([id] [id] 'in [expression] ') [indent] [repeat stmt_newline] [dedent] [repeat endofline]
+	|	'foreach '(var [id] 'in [expression] ') [indent] [repeat stmt_newline] [dedent] [repeat endofline]
 end redefine
 
 redefine elif_header
@@ -94,6 +94,11 @@ end redefine
 redefine lambda_function_literal
 		...
 	|	[variable_optional_declaration,] '=> [expression]
+end redefine
+
+redefine local_function_definition
+		...
+	|	'var [id] '= 'delegate '( [variable_declaration,] ') [indent] [function_body] [dedent] [repeat endofline]
 end redefine
 
 redefine indent

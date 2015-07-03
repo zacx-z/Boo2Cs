@@ -5,10 +5,11 @@ function main
 	replace [program]
 		P [program]
 	by
-		P [convert_variable_declaration] [convert_variable_o_declaration] [convert_function_declaration] [c_local_variable_definition] [convert_generic]
-		[convert_for_in] [convert_if] [convert_reverse_if] [convert_elif] [convert_if_body] [convert_single_name] [convert_import_stmt]
+		P [convert_local_function_definition] [convert_variable_declaration] [convert_variable_o_declaration]
+		[convert_function_declaration] [c_local_variable_definition] [convert_generic]
+		[convert_for_in] [convert_if] [convert_reverse_if] [convert_elif] [convert_if_body] [rename_single] [convert_import_stmt]
 		[convert_while] [c_generic_type_declaration] [convert_callable] [convert_array_type_1] [convert_array_type_2] [convert_enum_definition]
-		[convert_yield] [convert_yield_null] [convert_lambda_literal]
+		[convert_yield] [convert_yield_null] [convert_lambda_literal] [rename_type_callable]
 		[convert_default_function_declaration] % comment this to forbidden
 		[convert_constructor_name_class] [convert_constructor_name_struct] [convert_derive]
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent] [convert_comment]
@@ -167,11 +168,18 @@ rule convert_callable
 		M 'delegate T N G '( P ')
 end rule
 
-rule convert_single_name
+rule rename_single
 	replace [id]
 		'single
 	by
 		'float
+end rule
+
+rule rename_type_callable
+	replace [type]
+		'callable
+	by
+		'Action
 end rule
 
 rule c_generic_type_declaration
@@ -179,6 +187,13 @@ rule c_generic_type_declaration
 		'[ 'of N [id] D [opt constraint] ']
 	by
 		'< N '> D [replace_constraint N] 
+end rule
+
+rule convert_local_function_definition
+	replace [local_function_definition]
+		'def Name [id] '( P [variable_declaration,] ') _ [opt type_declaration] I [indent] B [function_body] D [dedent] NL [repeat endofline]
+	by
+		'var Name '= 'delegate '( P ') I B D NL
 end rule
 
 rule replace_constraint N [id]

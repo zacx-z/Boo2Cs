@@ -27,6 +27,7 @@ keys
     as        with      namespace elif      struct
     constructor         get       set       pass
     null      override  enum      isa       virtual
+    abstract
 end keys
 
 compounds
@@ -39,6 +40,7 @@ end compounds
 comments
     '#
     '//
+    /* */
 end comments
 
 define program
@@ -46,7 +48,7 @@ define program
 end define
 
 define class_file
-	[opt namespace_stmt] [repeat endofline] [repeat import_stmt_newline] [class_or_struct_definition+]
+	[opt namespace_stmt] [repeat endofline] [repeat import_stmt_newline] [class_or_struct_or_interface_definition+]
 end define
 
 define namespace_stmt
@@ -61,12 +63,12 @@ define import_alias
     'as [id]
 end define
 
-define class_or_struct_definition
-    [class_definition] | [struct_definition]
+define class_or_struct_or_interface_definition
+    [class_definition] | [struct_definition] | [interface_definition]
 end define
 
 define class_definition
-    [repeat attribute_stmt_newline] [opt scope_modifier] 'class [id] [opt generic_type_declaration] [opt derive] [class_body]
+    [repeat attribute_stmt_newline] [opt scope_modifier] [opt 'abstract] 'class [id] [opt generic_type_declaration] [opt derive] [class_body]
 end define
 
 define class_body
@@ -74,8 +76,16 @@ define class_body
     |   [indent] 'pass [repeat endofline] [dedent] [repeat endofline]
 end define
 
+define interface_body
+    [indent] [repeat function_declaration] [dedent] [repeat endofline]
+end define
+
 define struct_definition
     [opt scope_modifier] 'struct [id] [class_body]
+end define
+
+define interface_definition
+    [opt scope_modifier] 'interface [id] [interface_body]
 end define
 
 define enum_definition
@@ -102,6 +112,7 @@ define class_member_newline
         [repeat attribute_stmt_newline] [class_member] [repeat endofline]
     |   [repeat attribute_stmt_newline] [class_definition]
     |   [repeat attribute_stmt_newline] [struct_definition]
+    |   [interface_definition]
     |   [enum_definition]
 end define
 
@@ -129,7 +140,11 @@ define setter
 end define
 
 define class_member_function_definition
-    [modifier] [opt 'override] [opt 'virtual] [function_header] [indent] [function_body] [dedent]
+    [modifier] [opt virtuality] [function_header] [indent] [function_body] [dedent]
+end define
+
+define function_declaration
+    [function_header] [indent] 'pass [endofline] [dedent] [repeat endofline]
 end define
 
 define callable_declaration
@@ -183,6 +198,7 @@ define group_stmt
         [if_stmt]
     |   [for_in_stmt]
     |   [while_stmt]
+    |   [local_function_definition]
 end define
 
 define assignment_stmt
@@ -240,6 +256,10 @@ define while_header
     'while [expression]
 end define
 
+define local_function_definition
+    [function_header] [indent] [function_body] [dedent] [repeat endofline]
+end define
+
 %
 
 define function_call
@@ -273,6 +293,7 @@ end define
 define type
         [id_with_dots] [opt generic_type] [opt '?]
     |   [array_type]
+    |   callable
 end define
 
 define array_type
@@ -287,6 +308,10 @@ end define
 
 define scope_modifier
     'public | 'protected | 'private
+end define
+
+define virtuality
+    'abstract | 'virtual | 'override
 end define
 
 define lambda_function_literal
