@@ -70,6 +70,10 @@ define derive
     '( [type_base] ')
 end define
 
+define constraint
+    '( [type_base] ')
+end define
+
 define class_member_newline
         [opt attribute_stmt_newline] [class_member] [repeat endofline]
     |   [class_definition]
@@ -116,7 +120,7 @@ define _inside_attribute
 end define
 
 define function_header
-        'def [id] '( [variable_declaration,] ') [opt function_type]
+        'def [id] [opt generic_type_declaration] '( [variable_declaration,] ') [opt function_type]
     |   [constructor_header]
 end define
 
@@ -230,7 +234,7 @@ define generic_type
 end define
 
 define generic_type_declaration
-    '[ 'of [id] [derive] ']
+    '[ 'of [id] [opt constraint] ']
 end define
 
 define type

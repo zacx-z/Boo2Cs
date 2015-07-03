@@ -28,7 +28,7 @@ end redefine
 
 redefine function_header
 		...
-	|	[id] [id] '([variable_declaration,]')
+	|	[type] [id] [opt generic_type_declaration] '([variable_declaration,]')
 end redefine
 
 redefine for_in_stmt
@@ -53,7 +53,7 @@ end redefine
 
 redefine generic_type_declaration
 		...
-	|	'< [id] '> [opt where_clause]
+	|	'< [id] '> [opt constraint]
 end redefine
 
 redefine callable_declaration
@@ -76,9 +76,10 @@ redefine yield_stmt
 	|	'yield 'return [expression]
 end redefine
 
-define where_clause
-	'where [id] ': [type_base]
-end define
+redefine constraint
+		...
+	|	'where [id] ': [type_base]
+end redefine
 
 redefine indent
 		...

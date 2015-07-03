@@ -62,18 +62,18 @@ end rule
 
 rule convert_function_declaration
 	replace [function_header]
-	    'def N [id] '( P [variable_declaration,] ') T [opt function_type]
+	    'def N [id] G [opt generic_type_declaration] '( P [variable_declaration,] ') T [opt function_type]
 	deconstruct T
-		'as _T [id]
+		'as _T [type]
 	by
-		_T N '( P ')
+		_T N G '( P ')
 end rule
 
 rule convert_default_function_declaration
 	replace [function_header]
-	    'def N [id] '( P [variable_declaration,] ')
+	    'def N [id] G [opt generic_type_declaration] '( P [variable_declaration,] ')
 	by
-		'void N '( P ')
+		'void N G '( P ')
 end rule
 
 rule convert_array_type
@@ -140,9 +140,16 @@ end rule
 
 rule c_generic_type_declaration
 	replace [generic_type_declaration]
-		'[ 'of N [id] '( T [type_base] ') ']
+		'[ 'of N [id] D [opt constraint] ']
 	by
-		'< N '> 'where N ': T
+		'< N '> D [replace_constraint N] 
+end rule
+
+rule replace_constraint N [id]
+	replace [constraint]
+	    '( T [type_base] ')
+	by
+		'where N ': T
 end rule
 
 rule convert_generic
