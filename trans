@@ -2,6 +2,16 @@
 show_help() {
     echo "conv <boo-code> [-o <output-file>]"
 }
+
+translate_file() {
+    ruby preprocess.rb $1 > tmp
+    if [[ $2 = "" ]]; then
+        txl tmp translate.txl
+    else
+        txl tmp translate.txl > $2
+    fi
+}
+
 if [[ $# == 0 ]]; then
     show_help
 else
@@ -15,17 +25,30 @@ else
                 OUTPUT_FILE=$2
                 shift
                 ;;
+            -R)
+                INPUT_FOLDER=$2
+                shift
+                ;;
             *)
                 INPUT_FILE=$1
                 ;;
         esac
         shift
     done
-    ruby preprocess.rb $INPUT_FILE > tmp
-    if [[ $OUTPUT_FILE = "" ]]; then
-        txl tmp translate.txl
+    if [[ $INPUT_FOLDER = "" ]]; then
+        translate_file $INPUT_FILE $OUTPUT_FILE
     else
-        txl tmp translate.txl > $OUTPUT_FILE
+        if [[ $OUTPUT_FILE = "" ]]; then
+            OUTPUT_FILE="output"
+        fi
+        mkdir -p $OUTPUT_FILE
+        IFS=$'\n'
+        for f in `find $INPUT_FOLDER -name *.boo`; do
+            fname=${f#$INPUT_FOLDER'/'}
+            echo $f
+            mkdir -p $OUTPUT_FILE"/"${fname%/*}
+            translate_file $f $OUTPUT_FILE"/"${fname%boo}"cs"
+        done
     fi
 fi
 
