@@ -6,6 +6,11 @@ compounds
 	=> && ||
 end compounds
 
+redefine class_file
+		...
+	|	[namespace_stmt] [indent] [class_file_content] [dedent]
+end redefine
+
 redefine derive
 		...
 	|	': [type_base]
@@ -39,6 +44,7 @@ end redefine
 redefine for_in_stmt
 		...
 	|	'foreach '(var [id] 'in [expression] ') [indent] [repeat stmt_newline] [dedent] [repeat endofline]
+	|	'foreach '([type] [id] 'in [expression] ') [indent] [repeat stmt_newline] [dedent] [repeat endofline]
 end redefine
 
 redefine elif_header
@@ -110,6 +116,11 @@ redefine dual_op
 		...
 	|	'&&
 	|	'||
+end redefine
+
+redefine una_op
+		...
+	|	'!
 end redefine
 
 redefine indent

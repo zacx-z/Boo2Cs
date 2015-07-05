@@ -48,11 +48,19 @@ define program
 end define
 
 define class_file
-	[opt namespace_stmt] [repeat endofline] [repeat import_stmt_newline] [class_or_struct_or_interface_definition+]
+	[opt namespace_stmt_newline] [class_file_content]
+end define
+
+define class_file_content
+    [repeat endofline] [repeat import_stmt_newline] [class_or_struct_or_interface_definition+]
 end define
 
 define namespace_stmt
 	'namespace [id_with_dots] [opt ';]
+end define
+
+define namespace_stmt_newline
+    [namespace_stmt] [endofline]
 end define
 
 define import_stmt_newline
@@ -323,8 +331,7 @@ end define
 define expression
         [primary]
     |   [expression] [dual_op] [expression]
-    |   '- [primary]
-    |   'not [primary]
+    |   [una_op] [primary]
     |   [primary] '++
     |   [primary] '--
     |   [expression] 'as [id_with_dots]
@@ -381,6 +388,11 @@ define dual_op
     |   '**
     |   '=~
     |   'isa
+end define
+
+define una_op
+        '-
+    |   'not
 end define
 
 define assignment_op

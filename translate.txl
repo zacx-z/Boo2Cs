@@ -1,22 +1,27 @@
 include "boo.grm"
 include "csharpAddon.grm"
 
-% TODO `self` to `this`
-
 function main
 	replace [program]
 		P [program]
 	by
-		P [convert_local_function_definition] [convert_variable_declaration] [convert_variable_o_declaration]
+		P [convert_class_file] [convert_local_function_definition] [convert_variable_declaration] [convert_variable_o_declaration]
 		[convert_function_declaration] [c_local_variable_definition] [convert_generic]
-		[convert_for_in] [convert_if] [convert_reverse_if] [convert_elif] [convert_if_body] [rename_single] [convert_import_stmt]
+		[convert_for_in] [convert_for_in_typed] [convert_if] [convert_reverse_if] [convert_elif] [convert_if_body] [rename_single] [convert_import_stmt]
 		[convert_while] [c_generic_type_declaration] [convert_callable] [convert_array_type_1] [convert_array_type_2] [convert_enum_definition]
 		[convert_yield] [convert_yield_null] [convert_lambda_literal] [rename_type_callable] [rename_self]
-		[rename_and] [rename_or]
+		[rename_and] [rename_or] [rename_not]
 		[convert_default_function_declaration] % comment this to forbidden
 		[convert_constructor_name_class] [convert_constructor_name_struct] [convert_derive]
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent] [convert_comment]
 end function
+
+rule convert_class_file
+	replace [class_file]
+		NS [namespace_stmt] CM [opt comment] NL [newline] C [class_file_content]
+	by
+		NS '{ CM NL C '}
+end rule
 
 rule convert_constructor_name_class
 	replace $ [class_definition]
@@ -123,6 +128,13 @@ rule convert_for_in
 	   	'foreach '( 'var V 'in E ') I B D TAIL   	
 end rule
 
+rule convert_for_in_typed
+	replace [for_in_stmt]
+	    'for V [id] 'as T [type] 'in E [expression] I [indent] B [repeat stmt_newline] D [dedent] TAIL[repeat endofline]
+	by
+	   	'foreach '( T V 'in E ') I B D TAIL   	
+end rule
+
 rule convert_if
 	replace [if_header]
 		'if E [expression]
@@ -204,6 +216,13 @@ rule rename_or
 		'or
 	by
 		'||
+end rule
+
+rule rename_not
+	replace [una_op]
+		'not
+	by
+		'!
 end rule
 
 rule c_generic_type_declaration
