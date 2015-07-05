@@ -27,7 +27,7 @@ keys
     as        with      namespace elif      struct
     constructor         get       set       pass
     null      override  enum      isa       virtual
-    abstract
+    abstract  self
 end keys
 
 compounds
@@ -339,6 +339,7 @@ end define
 define objvalue
         [string]
     |   [arraylit]
+    |   'self
     |   '( [expression] ')
     |   [objvalue] '[ [expression,] ']
     |   [objvalue] '[ [expression] ': [opt expression] ']
@@ -361,8 +362,8 @@ end define
 define dual_op
         '==
     |   '!=
-    |   and
-    |   or
+    |   'and
+    |   'or
     |   '+
     |   '-
     |   '/

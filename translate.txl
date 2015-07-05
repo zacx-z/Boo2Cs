@@ -1,6 +1,8 @@
 include "boo.grm"
 include "csharpAddon.grm"
 
+% TODO `self` to `this`
+
 function main
 	replace [program]
 		P [program]
@@ -9,7 +11,8 @@ function main
 		[convert_function_declaration] [c_local_variable_definition] [convert_generic]
 		[convert_for_in] [convert_if] [convert_reverse_if] [convert_elif] [convert_if_body] [rename_single] [convert_import_stmt]
 		[convert_while] [c_generic_type_declaration] [convert_callable] [convert_array_type_1] [convert_array_type_2] [convert_enum_definition]
-		[convert_yield] [convert_yield_null] [convert_lambda_literal] [rename_type_callable]
+		[convert_yield] [convert_yield_null] [convert_lambda_literal] [rename_type_callable] [rename_self]
+		[rename_and] [rename_or]
 		[convert_default_function_declaration] % comment this to forbidden
 		[convert_constructor_name_class] [convert_constructor_name_struct] [convert_derive]
 		[add_semicolon_stmt] [add_semicolon_member_variable] [convert_indent] [convert_comment]
@@ -180,6 +183,27 @@ rule rename_type_callable
 		'callable
 	by
 		'Action
+end rule
+
+rule rename_self
+	replace [objvalue]
+		'self
+	by
+		'this
+end rule
+
+rule rename_and
+	replace [dual_op]
+		'and
+	by
+		'&&
+end rule
+
+rule rename_or
+	replace [dual_op]
+		'or
+	by
+		'||
 end rule
 
 rule c_generic_type_declaration

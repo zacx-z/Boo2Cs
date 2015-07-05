@@ -1,9 +1,9 @@
 keys
-	delegate	var
+	delegate	var 	this
 end keys
 
 compounds
-	=>
+	=> && ||
 end compounds
 
 redefine derive
@@ -99,6 +99,17 @@ end redefine
 redefine local_function_definition
 		...
 	|	'var [id] '= 'delegate '( [variable_declaration,] ') [indent] [function_body] [dedent] [repeat endofline]
+end redefine
+
+redefine objvalue
+		...
+	|	'this
+end redefine
+
+redefine dual_op
+		...
+	|	'&&
+	|	'||
 end redefine
 
 redefine indent
